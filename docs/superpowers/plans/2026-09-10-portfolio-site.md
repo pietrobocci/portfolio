@@ -14,9 +14,9 @@
 
 - Site language: **English**. Spec, plan and code comments: Italian is fine in docs, English in code.
 - Contact email shown on the site: `pietroboccifb@outlook.com`. Phone number is **not** published.
-- Employer is anonymised: `a pharmaceutical automation company (Italy)`. Machine is `the first gloveless, humanless robotic aseptic filling platform`. The strings `Pharma Integration`, `IMA Life`, `QUANTUM`, `Azzurra` must never appear in the repo.
+- Employer is anonymised: `a pharmaceutical automation company (Italy)`. Machine is `the first gloveless, humanless robotic aseptic filling platform`. The banned literals live in `scripts/check-leaks.mjs`, which is git-ignored: this repo is public, so the list of things to hide cannot be written down in it.
 - Years of experience: **6+**, everywhere.
-- GitHub links point at `github.com/pietrobocci/<repo>`. The placeholder `YOUR-USERNAME` must never appear.
+- GitHub links point at `github.com/pietrobocci/<repo>`; no placeholder usernames.
 - Git identity for this repo: `pietroboccimeetin@gmail.com`. Repo root is `New folder (2)/portfolio`, never the parent folder.
 - No logbook (`docs/Diario-di-bordo.md`) on this repo.
 - Zero-cost: no paid service, no backend, no secret in the repo.
@@ -118,10 +118,9 @@ The footer, the nav and the print button itself carry `no-print`.
 - [ ] **Step 5: Verify**
 
 ```bash
-npx tsc --noEmit && npm run build
-grep -riE "Pharma Integration|IMA Life|QUANTUM|Azzurra|YOUR-USERNAME|5\+ years" src/
+npx tsc --noEmit && npm run build && node scripts/check-leaks.mjs
 ```
-Expected: build passes, grep finds nothing.
+Expected: build passes, the leak check reports nothing.
 
 - [ ] **Step 6: Commit**
 

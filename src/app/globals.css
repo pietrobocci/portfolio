@@ -41,6 +41,39 @@ body {
   text-wrap: pretty;
 }
 
+/* CV section headings and bullet lists: repeated on every block of the
+   CV page, so they live here instead of being pasted into each JSX node. */
+.cv-heading {
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.cv-bullets {
+  margin-top: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.cv-bullets > li {
+  position: relative;
+  padding-left: 1rem;
+}
+
+.cv-bullets > li::before {
+  content: "▪";
+  position: absolute;
+  left: 0;
+  color: var(--accent);
+  font-size: 0.7rem;
+  top: 0.25em;
+}
+
 /* Keyboard users must always be able to see where they are. */
 :focus-visible {
   outline: 2px solid var(--accent);

@@ -28,8 +28,11 @@ valutate e scartate (vedi §9).
    pubblicherebbe quel materiale.
 2. **Anonimizzazione.** Nel contenuto pubblico il datore è
    *"a pharmaceutical automation company (Italy)"*. La macchina è
-   *"the first gloveless, humanless robotic aseptic filling platform"*: niente
-   "Pharma Integration", niente "IMA Life QUANTUM", niente "Azzurra".
+   *"the first gloveless, humanless robotic aseptic filling platform"*. Il nome del
+   datore, quello commerciale della macchina e quello interno del progetto di lavoro
+   non compaiono da nessuna parte nel repo, documentazione inclusa: questo file è
+   pubblico quanto il sito. La lista dei termini vietati sta in `scripts/check-leaks.mjs`,
+   che non è versionato.
 3. **Identità.** Autore git: `pietroboccimeetin@gmail.com`, configurato a livello di
    repo. Email di contatto mostrata sul sito: `pietroboccifb@outlook.com`.
 4. **Codice studiabile riga per riga.** File piccoli, nomi espliciti, nessuna astrazione
@@ -129,7 +132,7 @@ mano.
 Motivazione, verificata sul campo: al 2026-09-10 esistevano due CV divergenti in
 `percorso-web3/CV/`. Il PDF `CV-Pietro-Bocci-Web3-1.pdf`, benché più recente come data
 file, era più vecchio come contenuto — nessun AI Content Enricher, *"two shipped
-full-stack blockchain projects"*, e un segnaposto `github.com/YOUR-USERNAME` mai
+full-stack blockchain projects"*, e un segnaposto `github.com/<username>` mai
 sostituito nel blocco contatti. Una fonte sola rende quel tipo di errore impossibile.
 
 Il PDF serve comunque (allegati alle candidature, parsing ATS), ma si ottiene stampando

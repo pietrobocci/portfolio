@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Local-only leak check: the list of banned terms must not be published
+/scripts/check-leaks.mjs
