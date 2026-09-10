@@ -1,36 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Portfolio
 
-## Getting Started
+Personal site of Pietro Bocci: a short introduction, a CV, and a live demo of
+the [Batch Certify](https://github.com/pietrobocci/batch-certify) dApp.
 
-First, run the development server:
+Built with Next.js (App Router), TypeScript and Tailwind CSS. Every page is
+statically rendered — there is no database, no API route and no secret. The
+only dynamic part is the demo, which runs entirely in the browser and talks to
+the Sepolia testnet through the visitor's wallet or a public RPC endpoint.
+
+## Running it
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+| Command | What it does |
+| --- | --- |
+| `npm run dev` | Development server on http://localhost:3000 |
+| `npm run build` | Production build, including a full type check |
+| `npm test` | Vitest suite over the pure logic of the demo |
+| `npm run lint` | ESLint |
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Layout
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+src/app/                    pages — no web3 dependency
+src/content/                every piece of copy, as typed objects
+src/components/             presentation components
+src/features/batch-certify/ the embedded dApp
+```
 
-## Learn More
+The dApp is mounted through `DemoMount.tsx`, a client component that imports it
+with `ssr: false`: wagmi reaches for `window`, so it must never be evaluated
+during the server render.
 
-To learn more about Next.js, take a look at the following resources:
+## Keeping the demo in sync with the contract
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+`src/features/batch-certify/abi.ts` and `lib/deployments.ts` are **copies** of
+the deployment output from the `batch-certify` repository, not imports. That is
+deliberate — a workspace would cost more than it saves for two files — but it
+means the copies go stale on their own.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+**After redeploying the contract, update both files.** `deployments.ts` needs
+the address, the explorer base URL and the deployment block; the history panel
+scans logs from that block, because a public RPC refuses a scan from genesis.
 
-## Deploy on Vercel
+While `deployments` is empty, the demo page renders a "landing soon" notice
+instead of broken panels.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## The CV
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`/cv` is the CV itself, not a PDF viewer. Printing the page (the "Download PDF"
+button calls `window.print()`) produces the A4 version through the print
+stylesheet in `globals.css`. One source, so the screen and paper versions
+cannot drift apart.

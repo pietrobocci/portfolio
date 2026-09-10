@@ -53,7 +53,7 @@ export default function CvPage() {
       </header>
 
       <div className="mt-8 grid gap-10 md:grid-cols-[1fr_15rem] md:gap-12">
-        <div className="order-2 space-y-10 md:order-1">
+        <div className="space-y-10">
           <section aria-labelledby="profile">
             <h2 className="cv-heading" id="profile">
               Profile
@@ -117,7 +117,7 @@ export default function CvPage() {
           </section>
         </div>
 
-        <aside className="order-1 space-y-7 md:order-2">
+        <aside className="space-y-7">
           <section aria-labelledby="skills">
             <h2 className="cv-heading" id="skills">
               Skills
