@@ -22,13 +22,13 @@ export type Deployment = {
 export const SEPOLIA_CHAIN_ID = 11155111;
 
 export const deployments: Deployment[] = [
-  // Sepolia deployment goes here once the contract is live:
-  // {
-  //   chainId: SEPOLIA_CHAIN_ID,
-  //   address: "0x...",
-  //   explorer: "https://sepolia.etherscan.io",
-  //   fromBlock: 1234567n,
-  // },
+  {
+    chainId: SEPOLIA_CHAIN_ID,
+    address: "0xDB279CA2f681649121C1f3E31D1cbfF6892CB095",
+    explorer: "https://sepolia.etherscan.io",
+    // Contract creation block, 2026-09-10.
+    fromBlock: 11674803n,
+  },
 ];
 
 export function deploymentFor(chainId: number): Deployment | undefined {
