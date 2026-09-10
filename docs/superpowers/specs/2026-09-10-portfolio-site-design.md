@@ -31,10 +31,10 @@ valutate e scartate (vedi §9).
    *"the first gloveless, humanless robotic aseptic filling platform"*: niente
    "Pharma Integration", niente "IMA Life QUANTUM", niente "Azzurra".
 3. **Identità.** Autore git: `pietroboccimeetin@gmail.com`, configurato a livello di
-   repo. Email di contatto mostrata sul sito: `pietrobocci@outlook.com`.
+   repo. Email di contatto mostrata sul sito: `pietroboccifb@outlook.com`.
 4. **Codice studiabile riga per riga.** File piccoli, nomi espliciti, nessuna astrazione
    furba. Vale come per `ai-content-enricher`.
-5. **Lingua del sito:** inglese. Spec e diario di bordo: italiano.
+5. **Lingua del sito:** inglese. Spec e documentazione interna: italiano.
 6. **Budget zero.** Nessun servizio a pagamento, nessun backend, nessuna chiave segreta.
 
 ## 3. Architettura
@@ -86,7 +86,8 @@ disseminato nel JSX. Aggiornare un ruolo o una descrizione significa cambiare un
 ABI e indirizzi dei contratti sono **copiati** in `features/batch-certify/`, non
 importati né condivisi via workspace. Duplicazione deliberata: un monorepo o un pacchetto
 npm per due file costerebbe più di quanto renda. Contropartita: dopo un redeploy dei
-contratti i file vanno risincronizzati a mano. Annotato nel diario di bordo.
+contratti i file vanno risincronizzati a mano. Il README del repo lo dichiara, così la
+cosa non si scopre a demo rotta.
 
 ## 4. Pagine
 
@@ -104,20 +105,35 @@ contratti i file vanno risincronizzati a mano. Annotato nel diario di bordo.
 
 ### `/cv` — CV
 
-Contenuto derivato da `spalla/percorso-web3/CV/cv-pietro-bocci.html`, riimpaginato per lo
-schermo (non A4) e **ribilanciato per un target fullstack**: TypeScript, React, Next.js e
-Node in cima; blockchain come sezione forte ma non prima; l'headline non è più
+**La pagina è il CV.** Non un PDF incorniciato in un `<iframe>`: HTML vero, che si apre in
+mezzo secondo, si legge sul telefono, è indicizzabile e ha i link ai repo cliccabili.
+
+Contenuto derivato da `spalla/percorso-web3/CV/cv-pietro-bocci.html` (versione del
+2026-09-09, la più aggiornata: contiene tutti e tre i progetti), riimpaginato per lo
+schermo e **ribilanciato per un target fullstack**: TypeScript, React, Next.js e Node in
+cima; blockchain come sezione forte ma non prima; l'headline non è più
 "Blockchain & Smart Contract Development".
 
-Anni di esperienza: **6+** (l'HTML sorgente dice ancora 5+; il PDF originale lo aggiorna
-Pietro).
+Anni di esperienza: **6+** (l'HTML sorgente dice ancora 5+).
 
 Sezioni: profilo, progetti di ingegneria, esperienza professionale (anonimizzata),
 competenze, formazione, lingue.
 
-Bottone **Download PDF** che punta a un PDF statico in `public/`, prodotto da Pietro
-dalla versione anonimizzata dell'HTML. Nessuna generazione di PDF a runtime. Finché il
-file non esiste, il bottone non viene renderizzato.
+#### Il PDF è un output della pagina, non un file parallelo
+
+Foglio di stile `@media print` sulla pagina `/cv` che produce un A4 pulito. Il bottone
+"Download PDF" apre la stampa del browser (`window.print()`). Nessun PDF statico in
+`public/`, nessuna libreria di generazione a runtime, nessun file da tenere allineato a
+mano.
+
+Motivazione, verificata sul campo: al 2026-09-10 esistevano due CV divergenti in
+`percorso-web3/CV/`. Il PDF `CV-Pietro-Bocci-Web3-1.pdf`, benché più recente come data
+file, era più vecchio come contenuto — nessun AI Content Enricher, *"two shipped
+full-stack blockchain projects"*, e un segnaposto `github.com/YOUR-USERNAME` mai
+sostituito nel blocco contatti. Una fonte sola rende quel tipo di errore impossibile.
+
+Il PDF serve comunque (allegati alle candidature, parsing ATS), ma si ottiene stampando
+la pagina.
 
 ### `/demo/batch-certify` — Demo
 
@@ -160,11 +176,12 @@ Graph per l'anteprima del link.
 
 Il tema segue la preferenza di sistema. Nessun toggle chiaro/scuro in v1.
 
-### Diario di bordo
+### Niente diario di bordo
 
-`docs/Diario-di-bordo.md`, aggiornato man mano dal primo giorno. Il port di wagmi dentro
-Next è terreno fertile di intoppi (`ssr: false`, mismatch di hydration, accessi a `window`
-in fase di build): sono i casi concreti che servono a Pietro per studiare e per i colloqui.
+Deciso il 2026-09-10: su questo progetto non si tiene. Metà del lavoro è layout e
+contenuti e non produce intoppi che valga la pena studiare; il diario resta uno strumento
+per i progetti dove si impara qualcosa, non una consuetudine da applicare ovunque. Vale
+solo qui: la pratica resta in piedi per gli altri repo.
 
 ## 6. Ordine dei lavori
 
@@ -193,9 +210,9 @@ dedicati per AI Content Enricher e Industrial Data Integrity.
 | Dipendenza | Da chi | Blocca |
 |---|---|---|
 | Deploy di `BatchCertificate` su Sepolia + verifica Etherscan | Pietro | Solo la tappa 6. Le tappe 1-5 procedono senza. |
-| PDF del CV anonimizzato | Pietro | Solo il bottone Download della pagina `/cv`. |
 
-Nessuna delle due blocca l'inizio dei lavori.
+Una sola dipendenza esterna, e non blocca l'inizio dei lavori. Il PDF del CV non compare
+più: si ottiene stampando la pagina `/cv` (vedi §4).
 
 ## 9. Decisioni prese e alternative scartate
 
@@ -215,3 +232,8 @@ Nessuna delle due blocca l'inizio dei lavori.
   al problema — un indexer di eventi, un tool CLI — non qui.
 - **Sito statico**, nessun backend: niente da mantenere, niente segreti da custodire,
   costo zero.
+- **CV come pagina HTML con stampa A4**, non PDF statico e non PDF incorniciato in un
+  `<iframe>`. L'iframe è il peggio dei due mondi: sui telefoni i visualizzatori PDF nativi
+  costringono a zoomare a due dita e spesso scaricano invece di mostrare. Una fonte sola
+  elimina il rischio di versioni divergenti.
+- **Niente diario di bordo su questo repo** (vedi §5).
