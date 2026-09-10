@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { caseStudy } from "@/content/batch-certify-case-study";
 import { projects } from "@/content/projects";
+import { DemoMount } from "@/features/batch-certify/DemoMount";
 
 export const metadata: Metadata = {
   title: "Batch Certify — live demo",
@@ -61,13 +62,8 @@ export default function BatchCertifyDemoPage() {
           ))}
         </ul>
 
-        <div className="mt-6 rounded-lg border border-border bg-surface p-6">
-          <p className="font-medium">Live demo landing soon.</p>
-          <p className="mt-2 text-[0.95rem] leading-relaxed text-muted">
-            The contract is being deployed to the Sepolia testnet. Until it is
-            live, the source, the Hardhat test suite and the frontend are all
-            readable in the repository.
-          </p>
+        <div className="mt-6">
+          <DemoMount />
         </div>
       </section>
     </>

@@ -11,6 +11,12 @@ export type Deployment = {
   chainId: number;
   address: `0x${string}`;
   explorer: string;
+  /**
+   * Block the contract was deployed in. The history panel scans logs from
+   * here, never from genesis: on a public network a from-zero scan is
+   * refused by the RPC provider, and on any network it is wasted work.
+   */
+  fromBlock: bigint;
 };
 
 export const SEPOLIA_CHAIN_ID = 11155111;
@@ -21,6 +27,7 @@ export const deployments: Deployment[] = [
   //   chainId: SEPOLIA_CHAIN_ID,
   //   address: "0x...",
   //   explorer: "https://sepolia.etherscan.io",
+  //   fromBlock: 1234567n,
   // },
 ];
 
