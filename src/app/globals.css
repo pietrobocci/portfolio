@@ -1,0 +1,96 @@
+@import "tailwindcss";
+
+:root {
+  --background: #fbfbfa;
+  --surface: #ffffff;
+  --foreground: #1a1a19;
+  --muted: #5b5b57;
+  --border: #e2e1dd;
+  --accent: #1f5f8b;
+  --accent-soft: #eaf1f6;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-accent: var(--accent);
+  --color-accent-soft: var(--accent-soft);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #121212;
+    --surface: #1a1a1a;
+    --foreground: #ececea;
+    --muted: #a3a29d;
+    --border: #2e2e2c;
+    --accent: #7cb7dd;
+    --accent-soft: #17252e;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  text-wrap: pretty;
+}
+
+/* Keyboard users must always be able to see where they are. */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* The CV page prints to a clean A4 sheet: the PDF is an output of the
+   page, never a separate file kept in sync by hand. */
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  :root {
+    --background: #ffffff;
+    --surface: #ffffff;
+    --foreground: #000000;
+    --muted: #333333;
+    --border: #cccccc;
+    --accent: #1f5f8b;
+    --accent-soft: #ffffff;
+  }
+
+  body {
+    background: #ffffff;
+    color: #000000;
+    font-size: 9.2pt;
+    line-height: 1.32;
+  }
+
+  main {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+  h1,
+  h2,
+  h3,
+  li {
+    break-inside: avoid;
+  }
+
+  @page {
+    size: A4;
+    margin: 11mm 12mm;
+  }
+}
