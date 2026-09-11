@@ -18,6 +18,10 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  // Absolute base for generated URLs such as the Open Graph image. Without
+  // it Next falls back to the per-deployment Vercel hostname, so link
+  // previews advertised a random URL instead of the real domain.
+  metadataBase: new URL(siteContent.url),
   title: {
     default: `${siteContent.name} — ${siteContent.role}`,
     template: `%s — ${siteContent.name}`,

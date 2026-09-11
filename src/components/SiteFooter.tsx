@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { siteContent } from "@/content/site";
 
 export function SiteFooter() {
@@ -25,6 +27,9 @@ export function SiteFooter() {
           >
             LinkedIn
           </a>
+          <Link className="hover:text-accent" href="/privacy">
+            Privacy
+          </Link>
         </nav>
       </div>
     </footer>

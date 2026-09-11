@@ -16,6 +16,7 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { usePublicClient, useWatchContractEvent } from "wagmi";
 
+import { blockRanges } from "../lib/blockRanges";
 import { formatDateTime, shortenAddress } from "../lib/format";
 import { QC_LABELS } from "../lib/qc";
 import { useContract } from "../lib/useContract";
@@ -32,10 +33,16 @@ type Row = {
 
 const HISTORY_KEY = ["certificate-history"];
 
+// Well under the 50,000-block cap of the pinned RPC (see wagmi.ts), so a
+// provider tightening its limit a little does not break the panel again.
+const LOG_CHUNK_SIZE = 10_000n;
+
 export function CertificateHistory() {
-  const client = usePublicClient();
-  const queryClient = useQueryClient();
   const { chainId, address: contractAddress, abi, fromBlock } = useContract();
+  // chainId passed explicitly: the history must not depend on which chain
+  // a connected wallet happens to be on.
+  const client = usePublicClient({ chainId });
+  const queryClient = useQueryClient();
 
   const {
     data: rows,
@@ -45,26 +52,37 @@ export function CertificateHistory() {
     // chainId in the cache key: each network keeps its own history.
     queryKey: [...HISTORY_KEY, chainId],
     enabled: Boolean(client && contractAddress),
+    // One retry, not TanStack's default three: a failing RPC should surface
+    // as a visible error in seconds, not after a silent back-off.
+    retry: 1,
     queryFn: async (): Promise<Row[]> => {
       if (!client || !contractAddress) return [];
 
-      // Scanning starts at the deployment block, never at genesis: public
-      // RPC providers refuse a from-zero range, and it would be wasted work
-      // anyway.
-      const [issued, revoked] = await Promise.all([
-        client.getContractEvents({
-          address: contractAddress,
-          abi,
-          eventName: "CertificateIssued",
-          fromBlock,
-        }),
-        client.getContractEvents({
-          address: contractAddress,
-          abi,
-          eventName: "CertificateRevoked",
-          fromBlock,
-        }),
-      ]);
+      // Scan from the deployment block to the head, in chunks the RPC will
+      // accept. Never from genesis, never in one call that grows every day.
+      const head = await client.getBlockNumber();
+      const ranges = blockRanges(fromBlock, head, LOG_CHUNK_SIZE);
+
+      const perChunk = await Promise.all(
+        ranges.map((range) =>
+          Promise.all([
+            client.getContractEvents({
+              address: contractAddress,
+              abi,
+              eventName: "CertificateIssued",
+              ...range,
+            }),
+            client.getContractEvents({
+              address: contractAddress,
+              abi,
+              eventName: "CertificateRevoked",
+              ...range,
+            }),
+          ]),
+        ),
+      );
+      const issued = perChunk.flatMap(([issuedLogs]) => issuedLogs);
+      const revoked = perChunk.flatMap(([, revokedLogs]) => revokedLogs);
 
       // Join revocations onto issues via the indexed batchKey.
       const revokeByKey = new Map(

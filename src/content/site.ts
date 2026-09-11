@@ -2,6 +2,7 @@
 // Nothing in the app hard-codes a name, an address or a link.
 export const siteContent = {
   name: "Pietro Bocci",
+  url: "https://pietrobocci.vercel.app",
   role: "Fullstack Engineer",
   headline:
     "Fullstack engineer — TypeScript, React, Node — with 6+ years writing mission-critical software for regulated pharmaceutical manufacturing.",
