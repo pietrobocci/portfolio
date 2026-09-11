@@ -132,7 +132,9 @@ export const cvContent = {
     {
       role: "Senior Automation Engineer | Software Developer",
       employer: "IMA Life Quantum (formerly Pharma Integration)",
-      period: "Apr 2020 – present",
+      // Non-breaking spaces keep the date range on one line: the employer name
+      // is long enough that the line wraps, and it must not wrap inside a date.
+      period: "Apr\u00a02020\u00a0–\u00a0present",
       note: "Joined Pharma Integration in April 2020 as Senior Mechatronics Automation Engineer; part of IMA Life Quantum since August 2026, following its acquisition of the company.",
       bullets: [
         "Co-developed, as one of a two-person team, the PLC software behind the first gloveless, humanless robotic aseptic filling platform — a next-generation system setting a new industry standard for sterile pharmaceutical production.",
