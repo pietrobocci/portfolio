@@ -106,6 +106,9 @@ export default function CvPage() {
                   <p className="mt-0.5 text-sm text-muted">
                     {role.employer} · {role.period}
                   </p>
+                  {"note" in role && role.note ? (
+                    <p className="mt-1 text-sm italic text-muted">{role.note}</p>
+                  ) : null}
                   <ul className="cv-bullets">
                     {role.bullets.map((bullet) => (
                       <li key={bullet}>{bullet}</li>

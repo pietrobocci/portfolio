@@ -1,8 +1,9 @@
 // CV content, rebalanced for a fullstack reader: TypeScript and the web
 // stack lead, blockchain follows as depth rather than as the headline.
 //
-// The employer is deliberately anonymised and the production machine is
-// described generically. Both are hard requirements, not stylistic choices.
+// The employer is named: IMA Life Quantum, which acquired Pharma Integration
+// in 2026. The production machine is still described generically — naming the
+// employer does not extend to naming the product.
 
 export type SkillGroup = { group: string; items: string[] };
 
@@ -17,6 +18,8 @@ export type CvRole = {
   role: string;
   employer: string;
   period: string;
+  /** One line of context shown under the employer, e.g. an acquisition. */
+  note?: string;
   bullets: string[];
 };
 
@@ -62,7 +65,7 @@ export const cvContent = {
         "Solidity 0.8.x, OpenZeppelin",
         "CREATE2, storage sharding, bit-packing",
         "wagmi / viem, EIP-1193 wallets",
-        "Geth PoA node operation, deployment & verification",
+        "Geth PoA, testnet deployment, Etherscan verification",
       ],
     },
     {
@@ -87,7 +90,6 @@ export const cvContent = {
   learning: [
     "Laravel and AWS fundamentals",
     "EVM security patterns & audit practices",
-    "Public testnet deployment, Etherscan verification",
   ],
 
   projects: [
@@ -110,6 +112,7 @@ export const cvContent = {
         "Implemented role-based issuance with OpenZeppelin AccessControl enforcing separation of duties, revocation that preserves the audit trail instead of deleting records, and custom errors decoded by the frontend.",
         "Wrote a 13-test Hardhat suite covering permissions, duplicate prevention, tampering detection and revocation semantics — negative-path tests included.",
         "Built the React/TypeScript frontend with wagmi/viem: client-side hashing via the Web Crypto API (documents never leave the user's machine), full transaction lifecycle feedback, wallet-less public verification, and a live audit trail reconstructed from on-chain events.",
+        "Deployed and source-verified the contract on the Sepolia testnet, with a public demo on this site that anyone can use without a wallet.",
       ],
     },
     {
@@ -128,8 +131,9 @@ export const cvContent = {
   experience: [
     {
       role: "Senior Automation Engineer | Software Developer",
-      employer: "A pharmaceutical automation company (Italy)",
-      period: "2020 – present",
+      employer: "IMA Life Quantum (formerly Pharma Integration)",
+      period: "Apr 2020 – present",
+      note: "Joined Pharma Integration in April 2020 as Senior Mechatronics Automation Engineer; part of IMA Life Quantum since August 2026, following its acquisition of the company.",
       bullets: [
         "Co-developed, as one of a two-person team, the PLC software behind the first gloveless, humanless robotic aseptic filling platform — a next-generation system setting a new industry standard for sterile pharmaceutical production.",
         "Defined and implemented core process logic, designing modular and reliable control architectures for mission-critical manufacturing where a software defect carries patient-safety and regulatory consequences.",
