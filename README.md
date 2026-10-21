@@ -51,7 +51,8 @@ instead of broken panels.
 
 ## The CV
 
-`/cv` is the CV itself, not a PDF viewer. Printing the page (the "Download PDF"
-button calls `window.print()`) produces the A4 version through the print
+`/cv` is the CV itself, not a PDF viewer. Printing the page (the
+"Print / Save as PDF" button calls `window.print()`; the browser's print dialog
+offers "Save as PDF" as a destination) produces the A4 version through the print
 stylesheet in `globals.css`. One source, so the screen and paper versions
 cannot drift apart.

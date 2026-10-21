@@ -125,9 +125,13 @@ competenze, formazione, lingue.
 #### Il PDF è un output della pagina, non un file parallelo
 
 Foglio di stile `@media print` sulla pagina `/cv` che produce un A4 pulito. Il bottone
-"Download PDF" apre la stampa del browser (`window.print()`). Nessun PDF statico in
-`public/`, nessuna libreria di generazione a runtime, nessun file da tenere allineato a
-mano.
+apre la stampa del browser (`window.print()`), da cui si sceglie "Salva come PDF".
+Nessun PDF statico in `public/`, nessuna libreria di generazione a runtime, nessun file
+da tenere allineato a mano.
+
+L'etichetta del bottone è **"Print / Save as PDF"** (dal 2026-10-21; prima diceva
+"Download PDF"). Il testo precedente prometteva un file e apriva un dialogo di stampa:
+un bottone che non fa quello che dice sembra rotto.
 
 Motivazione, verificata sul campo: al 2026-09-10 esistevano due CV divergenti in
 `percorso-web3/CV/`. Il PDF `CV-Pietro-Bocci-Web3-1.pdf`, benché più recente come data
