@@ -5,7 +5,7 @@ export const siteContent = {
   url: "https://pietrobocci.vercel.app",
   role: "Fullstack Engineer",
   headline:
-    "Automation engineer moving into fullstack: six years of mission-critical control software for regulated pharmaceutical manufacturing, now building for the web in TypeScript, React and Node.",
+    "Automation engineer moving into fullstack: six years of mission-critical control software for regulated pharmaceutical manufacturing, now building for the web.",
   summary:
     "I build web applications the way regulated manufacturing taught me to build control software: tested before it ships, auditable once it runs, and explainable line by line.",
   email: "pietroboccifb@outlook.com",

@@ -1,4 +1,4 @@
-// CV content, rebalanced for a fullstack reader: TypeScript and the web
+// CV content, rebalanced for a fullstack reader: the web work
 // stack lead, blockchain follows as depth rather than as the headline.
 //
 // The employer is named: IMA Life Quantum, which acquired Pharma Integration
@@ -24,10 +24,10 @@ export type CvRole = {
 };
 
 export const cvContent = {
-  title: "Fullstack Engineer · TypeScript, React, Node — Blockchain & Smart Contracts",
+  title: "Fullstack Engineer · Web Applications — Blockchain & Smart Contracts",
 
   profile: [
-    "Automation engineer with 6+ years building mission-critical control software for GMP pharmaceutical production, now moving into fullstack web development. My TypeScript is recent and project-based, but written with the discipline regulated manufacturing demands: tests before deployment, auditable state changes, and design decisions I can defend line by line.",
+    "Automation engineer with 6+ years building mission-critical control software for GMP pharmaceutical production, now moving into fullstack web development. The web work is recent and project-based, but built with the discipline regulated manufacturing demands: tests before deployment, auditable state changes, and design decisions I can defend line by line.",
     "My advantage is domain depth rather than generic tutorials: three shipped full-stack projects — an LLM-powered content pipeline, and two rooted in real pharmaceutical traceability problems — plus the regulatory context (21 CFR Part 11, EU Annex 11, ALCOA+) that makes data integrity a requirement I have actually had to satisfy.",
   ],
 
