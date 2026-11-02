@@ -13,7 +13,7 @@ export type PrivacySection = {
 
 export const privacyContent = {
   title: "Privacy",
-  lastUpdated: "2026-09-11",
+  lastUpdated: "2026-11-02",
 
   intro: [
     "This is a personal portfolio. It has no cookies, no analytics, no tracking pixels and no sign-up. What it does process is listed below, in full.",
