@@ -66,34 +66,80 @@ describe("request shape", () => {
       },
     });
 
+    const meta = { id: "call_1", thoughtSignature: "sig-abc" };
+
     await provider.turn({
       ...baseRequest,
       history: [
         { role: "user", text: "q" },
-        { role: "model", calls: [{ name: "get_contract_status", args: {} }] },
+        {
+          role: "model",
+          calls: [
+            { name: "get_contract_status", args: {}, providerMeta: meta },
+          ],
+        },
         {
           role: "tool",
           name: "get_contract_status",
           response: { deployed: true },
+          providerMeta: meta,
         },
       ],
     });
 
     const contents = (body as unknown as { contents: unknown[] }).contents;
+
+    // thoughtSignature is a sibling of functionCall, not a field inside it.
+    // Dropping it makes the live API answer 400 INVALID_ARGUMENT — this
+    // expectation exists because that actually happened.
     expect(contents[1]).toEqual({
       role: "model",
-      parts: [{ functionCall: { name: "get_contract_status", args: {} } }],
+      parts: [
+        {
+          functionCall: { name: "get_contract_status", args: {}, id: "call_1" },
+          thoughtSignature: "sig-abc",
+        },
+      ],
     });
     expect(contents[2]).toEqual({
       role: "user",
       parts: [
         {
           functionResponse: {
+            id: "call_1",
             name: "get_contract_status",
             response: { deployed: true },
           },
         },
       ],
+    });
+  });
+
+  it("omits the provider fields when a call carries none", async () => {
+    let body: Record<string, never> | undefined;
+    const provider = createGeminiProvider({
+      apiKey: "k",
+      fetchImpl: async (_url, init) => {
+        body = JSON.parse(String(init?.body));
+        return jsonResponse({
+          candidates: [{ content: { parts: [{ text: "done" }] } }],
+        });
+      },
+    });
+
+    await provider.turn({
+      ...baseRequest,
+      history: [
+        { role: "user", text: "q" },
+        { role: "model", calls: [{ name: "t", args: {} }] },
+      ],
+    });
+
+    const contents = (body as unknown as { contents: unknown[] }).contents;
+    // No empty id or signature keys: the API rejects a malformed part.
+    expect(contents[1]).toEqual({
+      role: "model",
+      parts: [{ functionCall: { name: "t", args: {} } }],
     });
   });
 });
@@ -142,6 +188,40 @@ describe("response parsing", () => {
     if (result.ok && result.data.kind === "tool_calls") {
       expect(result.data.calls[0].name).toBe("verify_document");
       expect(result.data.calls[0].args.batchId).toBe("LOT-1");
+    }
+  });
+
+  it("keeps the call id and thought signature the API will demand back", async () => {
+    const provider = createGeminiProvider({
+      apiKey: "k",
+      fetchImpl: async () =>
+        jsonResponse({
+          candidates: [
+            {
+              content: {
+                parts: [
+                  {
+                    functionCall: {
+                      name: "get_contract_status",
+                      args: {},
+                      id: "call_501849",
+                    },
+                    thoughtSignature: "EuoCCucCAWkUfROT",
+                  },
+                ],
+              },
+            },
+          ],
+        }),
+    });
+
+    const result = await provider.turn(baseRequest);
+    expect(result.ok).toBe(true);
+    if (result.ok && result.data.kind === "tool_calls") {
+      expect(result.data.calls[0].providerMeta).toEqual({
+        id: "call_501849",
+        thoughtSignature: "EuoCCucCAWkUfROT",
+      });
     }
   });
 

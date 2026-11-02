@@ -10,6 +10,8 @@
 
 import { useState } from "react";
 
+import { renderAnswer } from "./renderAnswer";
+
 const SUGGESTIONS = [
   "Is the Batch Certify contract really deployed?",
   "What is on the chain right now?",
@@ -95,9 +97,9 @@ export function AskWidget() {
           {exchanges.map((exchange, index) => (
             <li key={index}>
               <p className="text-sm font-medium">{exchange.question}</p>
-              <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-muted">
-                {exchange.answer}
-              </p>
+              <div className="mt-2 space-y-3 text-sm leading-relaxed text-muted">
+                {renderAnswer(exchange.answer)}
+              </div>
               {exchange.toolsUsed.length > 0 && (
                 <p className="mt-2 text-xs text-muted">
                   ✓ Checked live on Sepolia ({exchange.toolsUsed.join(", ")})

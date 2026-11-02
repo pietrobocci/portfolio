@@ -78,6 +78,9 @@ export async function ask(
       history.push({
         role: "tool",
         name: call.name,
+        // Handed straight back so the provider can pair the answer with the
+        // call it belongs to.
+        providerMeta: call.providerMeta,
         // A failed tool is reported to the model, not hidden: it can then
         // answer from the corpus and say what it could not check, which is
         // far better than inventing the missing fact.

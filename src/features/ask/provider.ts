@@ -9,6 +9,13 @@ import type { Result } from "./result";
 export type ToolCall = {
   name: string;
   args: Record<string, unknown>;
+  /**
+   * Whatever the provider needs handed back verbatim with this call, opaque
+   * to the loop and the tools. Gemini keeps a call id and a thought signature
+   * here and rejects the next request without them; another provider may put
+   * something else, or nothing.
+   */
+  providerMeta?: unknown;
 };
 
 /**
@@ -18,7 +25,13 @@ export type ToolCall = {
 export type HistoryEntry =
   | { role: "user"; text: string }
   | { role: "model"; calls: ToolCall[] }
-  | { role: "tool"; name: string; response: Record<string, unknown> };
+  | {
+      role: "tool";
+      name: string;
+      response: Record<string, unknown>;
+      /** Copied from the call being answered; see ToolCall.providerMeta. */
+      providerMeta?: unknown;
+    };
 
 export type TurnRequest = {
   /** Scope rules plus the whole corpus. Constant across a conversation. */

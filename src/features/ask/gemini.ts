@@ -118,6 +118,9 @@ export function createGeminiProvider(opts: GeminiOptions): AskProvider {
   return { name: `gemini:${model}`, turn };
 }
 
+/** What Gemini demands back, verbatim, with a function call it made. */
+type GeminiCallMeta = { id?: string; thoughtSignature?: string };
+
 /** Our neutral history entries, in Gemini's `contents` shape. */
 function toContent(entry: TurnRequest["history"][number]) {
   if (entry.role === "user") {
@@ -126,17 +129,36 @@ function toContent(entry: TurnRequest["history"][number]) {
   if (entry.role === "model") {
     return {
       role: "model",
-      parts: entry.calls.map((call) => ({
-        functionCall: { name: call.name, args: call.args },
-      })),
+      parts: entry.calls.map((call) => {
+        const meta = (call.providerMeta ?? {}) as GeminiCallMeta;
+        // thoughtSignature sits beside functionCall, not inside it, and the
+        // API returns 400 INVALID_ARGUMENT if it is dropped when the call is
+        // echoed back. Verified against the live API, not inferred.
+        return {
+          functionCall: {
+            name: call.name,
+            args: call.args,
+            ...(meta.id ? { id: meta.id } : {}),
+          },
+          ...(meta.thoughtSignature
+            ? { thoughtSignature: meta.thoughtSignature }
+            : {}),
+        };
+      }),
     };
   }
-  // A tool result is sent back as a user-role functionResponse part.
+  // A tool result goes back as a user-role functionResponse, carrying the id
+  // of the call it answers so the model can pair them.
+  const meta = (entry.providerMeta ?? {}) as GeminiCallMeta;
   return {
     role: "user",
     parts: [
       {
-        functionResponse: { name: entry.name, response: entry.response },
+        functionResponse: {
+          ...(meta.id ? { id: meta.id } : {}),
+          name: entry.name,
+          response: entry.response,
+        },
       },
     ],
   };
@@ -154,8 +176,11 @@ function parseTurn(payload: unknown): Result<ModelTurn> {
   const texts: string[] = [];
 
   for (const part of parts) {
-    const call = (part as { functionCall?: { name?: string; args?: unknown } })
-      .functionCall;
+    const typed = part as {
+      functionCall?: { name?: string; args?: unknown; id?: string };
+      thoughtSignature?: string;
+    };
+    const call = typed.functionCall;
     if (call?.name) {
       calls.push({
         name: call.name,
@@ -163,6 +188,10 @@ function parseTurn(payload: unknown): Result<ModelTurn> {
           call.args && typeof call.args === "object"
             ? (call.args as Record<string, unknown>)
             : {},
+        providerMeta: {
+          id: call.id,
+          thoughtSignature: typed.thoughtSignature,
+        },
       });
       continue;
     }
