@@ -1,10 +1,15 @@
 import Link from "next/link";
 
 import { ProjectCard } from "@/components/ProjectCard";
+import { AskWidget } from "@/features/ask/AskWidget";
 import { projects } from "@/content/projects";
 import { siteContent } from "@/content/site";
 
 export default function Home() {
+  // Read on the server: without a key the endpoint cannot answer, so the
+  // widget is not rendered at all rather than offered and then failing.
+  const assistantEnabled = Boolean(process.env.GEMINI_API_KEY);
+
   return (
     <>
       <section aria-labelledby="intro">
@@ -34,6 +39,17 @@ export default function Home() {
           </Link>
         </div>
       </section>
+
+      {assistantEnabled && (
+        <section aria-labelledby="ask" className="mt-16">
+          <h2 className="cv-heading" id="ask">
+            Ask about my work
+          </h2>
+          <div className="mt-4">
+            <AskWidget />
+          </div>
+        </section>
+      )}
 
       <section aria-labelledby="projects" className="mt-16">
         <h2 className="cv-heading" id="projects">

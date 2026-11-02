@@ -13,7 +13,7 @@ export type PrivacySection = {
 
 export const privacyContent = {
   title: "Privacy",
-  lastUpdated: "2026-11-02",
+  lastUpdated: "2026-11-03",
 
   intro: [
     "This is a personal portfolio. It has no cookies, no analytics, no tracking pixels and no sign-up. What it does process is listed below, in full.",
@@ -47,6 +47,15 @@ export const privacyContent = {
         `On the demo page, your browser reads the Sepolia test blockchain directly through public endpoints: ${SEPOLIA_RPC_ENDPOINTS.map((e) => `${e.provider} (${new URL(e.url).hostname})`).join(", ")}. The first is used, the others only if it fails. Whichever answers receives your IP address as part of those requests. This happens only on the demo page, not on the rest of the site.`,
         "Files you select are hashed inside your browser. The file itself is never uploaded — not to me, not to the blockchain, not to anyone.",
         "If you connect a wallet and send a transaction, your wallet address, the batch ID, the hash and any revocation reason are written to a public blockchain. That record is permanent by design: nobody, including me, can edit or delete it. Do not put personal data in those fields.",
+      ],
+    },
+    {
+      heading: "The assistant on the home page",
+      paragraphs: [
+        "If you ask the assistant a question, the text you type is sent to my server and from there to Google's Gemini API, which generates the answer. Do not type anything personal or confidential into it — there is no reason to, and it leaves my control once it reaches Google.",
+        "Google processes it as an independent provider under its own terms (ai.google.dev/terms) and its own privacy policy, outside the European Union. I do not store your questions in any database; they appear only in the ordinary server logs described under Hosting.",
+        "To stop one visitor exhausting the service, the server counts recent requests against a coarse key derived from your IP address. That count is held in memory, is not linked to anything else, and disappears when the server instance restarts.",
+        "Legal basis: legitimate interest in answering questions about my work to people who choose to ask (GDPR art. 6(1)(f)). Using it is entirely optional — every answer it gives is also written on the pages of this site.",
       ],
     },
     {
