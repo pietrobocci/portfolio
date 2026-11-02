@@ -4,7 +4,7 @@
 // changes in the same commit.
 
 // Plain constant, no wagmi import: this page stays free of web3 code.
-import { SEPOLIA_RPC_URL } from "@/features/batch-certify/lib/rpc";
+import { SEPOLIA_RPC_ENDPOINTS } from "@/features/batch-certify/lib/rpc";
 
 export type PrivacySection = {
   heading: string;
@@ -44,7 +44,7 @@ export const privacyContent = {
     {
       heading: "The Batch Certify demo",
       paragraphs: [
-        `On the demo page, your browser reads the Sepolia test blockchain directly through a public endpoint run by PublicNode (${new URL(SEPOLIA_RPC_URL).hostname}). That provider receives your IP address as part of those requests. This happens only on the demo page, not on the rest of the site.`,
+        `On the demo page, your browser reads the Sepolia test blockchain directly through public endpoints: ${SEPOLIA_RPC_ENDPOINTS.map((e) => `${e.provider} (${new URL(e.url).hostname})`).join(", ")}. The first is used, the others only if it fails. Whichever answers receives your IP address as part of those requests. This happens only on the demo page, not on the rest of the site.`,
         "Files you select are hashed inside your browser. The file itself is never uploaded — not to me, not to the blockchain, not to anyone.",
         "If you connect a wallet and send a transaction, your wallet address, the batch ID, the hash and any revocation reason are written to a public blockchain. That record is permanent by design: nobody, including me, can edit or delete it. Do not put personal data in those fields.",
       ],

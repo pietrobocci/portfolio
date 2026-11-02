@@ -13,6 +13,8 @@
 //   useWatchContractEvent — subscribes to NEW events; on arrival it just
 //                           invalidates the cache and TanStack Query
 //                           refetches, so the table updates live.
+import { useEffect } from "react";
+
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { usePublicClient, useWatchContractEvent } from "wagmi";
 
@@ -33,9 +35,12 @@ type Row = {
 
 const HISTORY_KEY = ["certificate-history"];
 
-// Well under the 50,000-block cap of the pinned RPC (see wagmi.ts), so a
-// provider tightening its limit a little does not break the panel again.
-const LOG_CHUNK_SIZE = 10_000n;
+// The pinned endpoint accepts spans of several hundred thousand blocks, so
+// the whole deployed history is two or three requests. That matters as much
+// as the cap itself: firing thirty chunks at once earned a wall of HTTP 429
+// from the same endpoint, and the fallback then inherited a request the
+// second provider cannot answer at all.
+const LOG_CHUNK_SIZE = 200_000n;
 
 export function CertificateHistory() {
   const { chainId, address: contractAddress, abi, fromBlock } = useContract();
@@ -63,26 +68,30 @@ export function CertificateHistory() {
       const head = await client.getBlockNumber();
       const ranges = blockRanges(fromBlock, head, LOG_CHUNK_SIZE);
 
-      const perChunk = await Promise.all(
-        ranges.map((range) =>
-          Promise.all([
-            client.getContractEvents({
-              address: contractAddress,
-              abi,
-              eventName: "CertificateIssued",
-              ...range,
-            }),
-            client.getContractEvents({
-              address: contractAddress,
-              abi,
-              eventName: "CertificateRevoked",
-              ...range,
-            }),
-          ]),
-        ),
-      );
-      const issued = perChunk.flatMap(([issuedLogs]) => issuedLogs);
-      const revoked = perChunk.flatMap(([, revokedLogs]) => revokedLogs);
+      // One range at a time, on purpose. A public endpoint rate-limits by
+      // requests per second, not per hour: a burst of parallel chunks is the
+      // one shape guaranteed to trip it, and a handful of sequential calls
+      // costs a few hundred milliseconds.
+      const issued = [];
+      const revoked = [];
+      for (const range of ranges) {
+        issued.push(
+          ...(await client.getContractEvents({
+            address: contractAddress,
+            abi,
+            eventName: "CertificateIssued",
+            ...range,
+          })),
+        );
+        revoked.push(
+          ...(await client.getContractEvents({
+            address: contractAddress,
+            abi,
+            eventName: "CertificateRevoked",
+            ...range,
+          })),
+        );
+      }
 
       // Join revocations onto issues via the indexed batchKey.
       const revokeByKey = new Map(
@@ -91,10 +100,14 @@ export function CertificateHistory() {
 
       // Events carry no timestamp — the BLOCK does. Fetch each unique block
       // once and look the timestamps up.
+      // Block lookups are cheap and few (one per block that issued
+      // something), but they go to the same endpoint: keep them sequential
+      // too rather than reintroduce a burst here.
       const uniqueBlocks = [...new Set(issued.map((log) => log.blockNumber))];
-      const blocks = await Promise.all(
-        uniqueBlocks.map((blockNumber) => client.getBlock({ blockNumber })),
-      );
+      const blocks = [];
+      for (const blockNumber of uniqueBlocks) {
+        blocks.push(await client.getBlock({ blockNumber }));
+      }
       const timeByBlock = new Map(
         blocks.map((block) => [block.number, block.timestamp]),
       );
@@ -112,6 +125,12 @@ export function CertificateHistory() {
         .reverse(); // newest first
     },
   });
+
+  // The page shows a short sentence; the real error goes to the console,
+  // where a developer (or a curious visitor) can see which endpoint failed.
+  useEffect(() => {
+    if (error) console.error("Certificate history:", error);
+  }, [error]);
 
   // Live updates: when a new event lands, drop the cache and refetch.
   const refresh = () =>
@@ -142,8 +161,17 @@ export function CertificateHistory() {
 
       {isLoading ? <p className="mt-4 text-sm text-muted">Loading events…</p> : null}
       {error ? (
-        <p className="mt-4 text-sm text-red-600 dark:text-red-400" role="alert">
-          {(error as Error).message}
+        // The raw RPC error is a wall of JSON naming an endpoint and a block
+        // range: useful in the console, meaningless on the page. The chain
+        // itself is fine either way — verification above reads storage, not
+        // logs — so say that instead of alarming the visitor.
+        <p
+          className="mt-4 text-sm break-words text-red-600 dark:text-red-400"
+          role="alert"
+        >
+          The public endpoint did not return the event history. Verification
+          above still works: it reads the contract directly. Details are in the
+          browser console.
         </p>
       ) : null}
       {rows && rows.length === 0 ? (
