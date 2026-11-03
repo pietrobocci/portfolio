@@ -9,6 +9,7 @@
 // infrastructure and a failure mode (fetching the wrong chunk) and buy
 // nothing. The corpus goes into the system instruction whole.
 
+import { assistantContent } from "@/content/assistant";
 import { cvContent } from "@/content/cv";
 import { projects } from "@/content/projects";
 import { caseStudy } from "@/content/batch-certify-case-study";
@@ -22,6 +23,7 @@ export function buildCorpus(): string {
     sectionCaseStudy(),
     sectionExperience(),
     sectionSkills(),
+    sectionAssistant(),
   ]
     .filter(Boolean)
     .join("\n\n");
@@ -93,6 +95,28 @@ function sectionSkills(): string {
     (group) => `${group.group}: ${group.items.join(", ")}`
   );
   return ["## SKILLS", ...lines].join("\n");
+}
+
+/**
+ * How this agent itself is built. Visitors ask — it is the one project they
+ * are looking at while they ask — and the answer has to be the real
+ * architecture, so it is read from the same module that renders /assistant
+ * rather than described a second time in a prompt.
+ */
+function sectionAssistant(): string {
+  const lines = [
+    "## THIS ASSISTANT — ARCHITECTURE",
+    `See the full write-up on this site at /assistant. Source: ${assistantContent.repoUrl}`,
+    ...assistantContent.intro,
+    "### Request path",
+    ...assistantContent.flow.map((stage) => `${stage.step}: ${stage.detail}`),
+    ...assistantContent.sections.map((section) =>
+      [`### ${section.heading}`, ...section.paragraphs].join("\n")
+    ),
+    "### Code map",
+    ...assistantContent.codeMap.map((entry) => `${entry.path} — ${entry.role}`),
+  ];
+  return lines.join("\n");
 }
 
 /** Renders strings, string arrays and shallow objects; ignores anything else. */

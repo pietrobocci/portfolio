@@ -1,11 +1,13 @@
-// The agent's three tools. All of them read the live Sepolia contract.
+// The agent's four tools: three read the live Sepolia contract, one reads my
+// public GitHub activity.
 //
 // This file is where the scope limit actually lives. The contract address,
-// the chain and the ABI are constants imported from the demo's own modules —
-// never parameters the model can set. The agent decides *whether* to call a
-// tool; it cannot decide *what to point it at*. Asked to inspect some other
-// contract, it has no capability to do so, which is a stronger guarantee
-// than any instruction in a prompt.
+// the chain, the ABI and the GitHub account are constants imported from the
+// site's own modules — never parameters the model can set. The agent decides
+// *whether* to call a tool; it cannot decide *what to point it at*. Asked to
+// inspect some other contract or someone else's repository, it has no
+// capability to do so, which is a stronger guarantee than any instruction in
+// a prompt.
 
 import { createPublicClient, http, type PublicClient } from "viem";
 import { sepolia } from "viem/chains";
@@ -15,6 +17,12 @@ import {
   SEPOLIA_CHAIN_ID,
 } from "@/features/batch-certify/lib/deployments";
 import { SEPOLIA_RPC_URL } from "@/features/batch-certify/lib/rpc";
+import {
+  ALLOWED_REPOS,
+  githubCommits,
+  githubOverview,
+  type GithubDeps,
+} from "./github";
 import { ok, err, type Result } from "./result";
 
 /** What the model is told it can call, in Gemini's function-declaration shape. */
@@ -51,6 +59,24 @@ export const toolDeclarations = [
       required: ["batchId", "docHash"],
     },
   },
+  {
+    name: "get_github_activity",
+    description:
+      "Read live data from my public GitHub account. With no argument it lists my public repositories with their language and the date of the last push. With a repository name it returns the dates and subjects of the most recent commits there. Call this when the visitor asks what I have been working on lately, how active the repositories are, or when a project was last touched.",
+    parameters: {
+      type: "object",
+      properties: {
+        repo: {
+          type: "string",
+          // A closed list, not free text: this is the only argument the model
+          // controls, and it may only name one of my own repositories.
+          enum: ALLOWED_REPOS,
+          description:
+            "Optional. One of my repositories, to get its recent commits instead of the account overview.",
+        },
+      },
+    },
+  },
 ] as const;
 
 export type ToolName = (typeof toolDeclarations)[number]["name"];
@@ -61,6 +87,8 @@ export type ToolOutput = Record<string, unknown>;
 export type ToolDeps = {
   /** Injected in tests; defaults to a real Sepolia client. */
   client?: PublicClient;
+  /** Injected in tests; defaults to the real GitHub API. */
+  github?: GithubDeps;
 };
 
 function publicClient(deps: ToolDeps): PublicClient {
@@ -90,6 +118,8 @@ export async function runTool(
       return listCertificates(deps);
     case "verify_document":
       return verifyDocument(args, deps);
+    case "get_github_activity":
+      return githubActivity(args, deps);
     default:
       return err({
         type: "invalid_input",
@@ -217,6 +247,21 @@ async function verifyDocument(
       retryable: true,
     });
   }
+}
+
+/**
+ * GitHub, in two modes. The declaration offers `repo` as an enum, but the
+ * model can still send anything: the list is enforced inside githubCommits,
+ * where it cannot be bypassed.
+ */
+function githubActivity(
+  args: Record<string, unknown>,
+  deps: ToolDeps
+): Promise<Result<ToolOutput>> {
+  const repo = typeof args.repo === "string" ? args.repo.trim() : "";
+  return repo
+    ? githubCommits(repo, deps.github)
+    : githubOverview(deps.github);
 }
 
 /** Mirrors the contract's QcResult enum. */

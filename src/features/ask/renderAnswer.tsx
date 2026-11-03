@@ -16,21 +16,50 @@ import { Fragment, type ReactNode } from "react";
 export function renderAnswer(text: string): ReactNode {
   const blocks = text.trim().split(/\n{2,}/);
 
-  return blocks.map((block, blockIndex) => {
-    const lines = block.split("\n");
-    const isList = lines.every((line) => /^\s*[*-]\s+/.test(line));
+  return blocks.map((block, blockIndex) => (
+    <Fragment key={blockIndex}>{renderBlock(block)}</Fragment>
+  ));
+}
 
-    if (isList) {
-      return (
-        <ul className="ml-4 list-disc space-y-1" key={blockIndex}>
-          {lines.map((line, lineIndex) => (
-            <li key={lineIndex}>{renderInline(line.replace(/^\s*[*-]\s+/, ""))}</li>
-          ))}
-        </ul>
-      );
+/**
+ * A block is prose, a list, or — as the model usually writes it — a lead-in
+ * line followed by list items. So the block is not classified as one thing:
+ * lines are grouped into runs as they come, and each run is rendered as what
+ * it is. Without this, "The tools read:\n1. …\n2. …" arrived as one
+ * paragraph with the numbers stranded mid-sentence.
+ */
+function renderBlock(block: string): ReactNode[] {
+  const runs: Array<{ kind: "p" | "ul" | "ol"; lines: string[] }> = [];
+
+  for (const line of block.split("\n")) {
+    const bullet = line.match(/^\s*[*-]\s+(.*)$/);
+    const numbered = line.match(/^\s*\d+[.)]\s+(.*)$/);
+    const kind = bullet ? "ul" : numbered ? "ol" : "p";
+    const content = bullet?.[1] ?? numbered?.[1] ?? line;
+
+    const current = runs[runs.length - 1];
+    if (current?.kind === kind) current.lines.push(content);
+    else runs.push({ kind, lines: [content] });
+  }
+
+  return runs.map((run, index) => {
+    if (run.kind === "p") {
+      // Single newlines inside a paragraph are wrapping, not structure.
+      return <p key={index}>{renderInline(run.lines.join(" "))}</p>;
     }
-
-    return <p key={blockIndex}>{renderInline(block)}</p>;
+    const List = run.kind === "ul" ? "ul" : "ol";
+    return (
+      <List
+        className={`ml-4 space-y-1 ${
+          run.kind === "ul" ? "list-disc" : "list-decimal"
+        }`}
+        key={index}
+      >
+        {run.lines.map((item, itemIndex) => (
+          <li key={itemIndex}>{renderInline(item)}</li>
+        ))}
+      </List>
+    );
   });
 }
 
@@ -51,7 +80,10 @@ function renderInline(text: string): ReactNode[] {
 
     const [, bold, code, label, href] = match;
     if (bold !== undefined) {
-      nodes.push(<strong key={key++}>{bold}</strong>);
+      // Rendered through this function again: the model writes **`name`**
+      // often enough that otherwise the backticks show up as characters.
+      // Each pass works on strictly shorter text, so it terminates.
+      nodes.push(<strong key={key++}>{renderInline(bold)}</strong>);
     } else if (code !== undefined) {
       nodes.push(
         <code className="break-all text-xs" key={key++}>
@@ -62,7 +94,7 @@ function renderInline(text: string): ReactNode[] {
       nodes.push(
         isSafeHref(href) ? (
           <a className="text-accent hover:underline" href={href} key={key++}>
-            {label}
+            {renderInline(label)}
           </a>
         ) : (
           // An unsafe or odd URL loses its link but keeps its text: the
@@ -84,6 +116,11 @@ function renderInline(text: string): ReactNode[] {
 /** Absolute http(s), or a path on this site. Nothing else. */
 export function isSafeHref(href: string): boolean {
   const value = href.trim();
+  // Whitespace inside a URL means the model mangled it mid-generation. Seen
+  // for real: "https://github.com/pietroboc\nci/batch-certify" would render
+  // as a link that leads nowhere. A broken link is worse than plain text,
+  // and silently deleting the newline would be inventing a URL on its behalf.
+  if (/\s/.test(value)) return false;
   if (value.startsWith("/")) return !value.startsWith("//");
   return /^https?:\/\//i.test(value);
 }

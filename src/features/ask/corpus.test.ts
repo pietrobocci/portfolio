@@ -32,6 +32,13 @@ describe("buildCorpus", () => {
     }
   });
 
+  it("describes the agent itself, since that is the project visitors are using", () => {
+    expect(corpus).toContain("## THIS ASSISTANT — ARCHITECTURE");
+    expect(corpus).toContain("/assistant");
+    // The scope argument is the part a visitor is most likely to probe.
+    expect(corpus).toContain("capability, not an instruction");
+  });
+
   it("stays small enough to send whole on every request", () => {
     // Roughly four characters per token. The point of this test is not the
     // exact figure: it is to fail loudly if the corpus ever grows to a size

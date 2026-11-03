@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { runTool, toolDeclarations } from "./tools";
+import { ALLOWED_REPOS } from "./github";
 import type { PublicClient } from "viem";
 
 // A stand-in for the chain. Every test here is offline: a test that makes a
@@ -9,16 +10,36 @@ function fakeClient(overrides: Partial<Record<string, unknown>>): PublicClient {
 }
 
 describe("tool declarations", () => {
-  it("never lets the model choose a contract, chain or address", () => {
-    // The whole scope guarantee rests on this: if an address or chain id ever
-    // becomes a model-supplied parameter, the agent can be pointed anywhere.
+  it("never lets the model choose a contract, chain, address or account", () => {
+    // The whole scope guarantee rests on this: if an address, a chain id or a
+    // repository owner ever becomes a model-supplied parameter, the agent can
+    // be pointed anywhere.
     const parameterNames = toolDeclarations.flatMap((tool) =>
       Object.keys(tool.parameters.properties ?? {})
     );
-    for (const forbidden of ["address", "contract", "chainId", "chain", "rpc", "url"]) {
+    for (const forbidden of [
+      "address",
+      "contract",
+      "chainId",
+      "chain",
+      "rpc",
+      "url",
+      "owner",
+      "user",
+    ]) {
       expect(parameterNames).not.toContain(forbidden);
     }
-    expect(parameterNames.sort()).toEqual(["batchId", "docHash"]);
+    expect(parameterNames.sort()).toEqual(["batchId", "docHash", "repo"]);
+  });
+
+  it("offers the repository argument as a closed list of my own repos", () => {
+    const github = toolDeclarations.find(
+      (tool) => tool.name === "get_github_activity"
+    );
+    const properties = github?.parameters.properties as
+      | Record<string, { enum?: readonly string[] }>
+      | undefined;
+    expect(properties?.repo.enum).toEqual(ALLOWED_REPOS);
   });
 });
 
@@ -37,6 +58,35 @@ describe("runTool", () => {
       expect(String(result.data.address)).toMatch(/^0x[0-9a-fA-F]{40}$/);
       expect(String(result.data.explorerUrl)).toContain("sepolia.etherscan.io");
     }
+  });
+});
+
+describe("get_github_activity", () => {
+  // The GitHub module has its own tests; what matters here is that the
+  // dispatcher picks the right mode and passes the injected deps through.
+  const listing = (async () =>
+    new Response(JSON.stringify([]), {
+      headers: { "Content-Type": "application/json" },
+    })) as unknown as typeof fetch;
+
+  it("reads the account overview when the model sends no repository", async () => {
+    const result = await runTool(
+      "get_github_activity",
+      {},
+      { github: { fetchImpl: listing } }
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.data.repositories).toEqual([]);
+  });
+
+  it("refuses a repository outside the list", async () => {
+    const result = await runTool(
+      "get_github_activity",
+      { repo: "ethereum/go-ethereum" },
+      { github: { fetchImpl: listing } }
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.error.type).toBe("invalid_input");
   });
 });
 

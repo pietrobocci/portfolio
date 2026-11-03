@@ -59,10 +59,22 @@ The corpus goes in the system instruction whole.
 | `get_contract_status` | Contract address, chain, deployment block, current certificate count | none |
 | `list_certificates` | Certificates issued, from on-chain events | none |
 | `verify_document` | `verify(batchId, docHash)` on the live contract | `batchId`, `docHash` — validated before use |
+| `get_github_activity` | Public repositories, or recent commits in one of them | `repo` — optional, checked against a closed list of my own repositories |
 
-Address, chain id and ABI are constants from
-`src/features/batch-certify/`. The agent chooses *whether* to call a
-tool, never *what to point it at*.
+Address, chain id, ABI and GitHub account are constants from
+`src/features/batch-certify/` and `src/content/`. The agent chooses
+*whether* to call a tool, never *what to point it at*.
+
+GitHub allows 60 anonymous requests an hour per server, so responses are
+cached for ten minutes and an exhausted quota becomes a stated limitation
+in the answer, never an invented one. `GITHUB_TOKEN` raises the ceiling
+if it is ever needed; nothing requires it.
+
+## The architecture page
+
+`/assistant` explains all of the above to a visitor, from the same
+content module the corpus reads — so the agent can describe its own
+architecture, and the page and the answers cannot disagree.
 
 ## Grounding
 

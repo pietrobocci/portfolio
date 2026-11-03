@@ -4,9 +4,10 @@ Personal site of Pietro Bocci: a short introduction, a CV, and a live demo of
 the [Batch Certify](https://github.com/pietrobocci/batch-certify) dApp.
 
 Built with Next.js (App Router), TypeScript and Tailwind CSS. Every page is
-statically rendered — there is no database, no API route and no secret. The
-only dynamic part is the demo, which runs entirely in the browser and talks to
-the Sepolia testnet through the visitor's wallet or a public RPC endpoint.
+statically rendered and there is no database. Two things are dynamic: the demo,
+which runs entirely in the browser and talks to the Sepolia testnet through the
+visitor's wallet or a public RPC endpoint, and the assistant on the home page,
+which is served by a single API route.
 
 ## Running it
 
@@ -22,12 +23,29 @@ npm run dev
 | `npm test` | Vitest suite over the pure logic of the demo |
 | `npm run lint` | ESLint |
 
+## The assistant
+
+The home page carries an agent that answers questions about the projects and
+reads two live sources: the Batch Certify contract on Sepolia and the public
+GitHub account. `/assistant` explains how it works; `docs/ask-bot-design.md`
+is the design note it came from.
+
+| Variable | Needed? | What it does |
+| --- | --- | --- |
+| `GEMINI_API_KEY` | For the assistant | Server-side only. Without it the endpoint answers 503 and the widget is not rendered, so the site works as a plain portfolio. |
+| `GITHUB_TOKEN` | No | Raises GitHub's anonymous 60-requests-per-hour ceiling. Responses are cached for ten minutes, so the site runs without one. |
+
+Put them in `.env.local` for development (git-ignored) and in the host's
+environment variables for production.
+
 ## Layout
 
 ```
 src/app/                    pages — no web3 dependency
+src/app/api/ask/            the assistant's only endpoint
 src/content/                every piece of copy, as typed objects
 src/components/             presentation components
+src/features/ask/           the agent: loop, tools, provider, rendering
 src/features/batch-certify/ the embedded dApp
 ```
 

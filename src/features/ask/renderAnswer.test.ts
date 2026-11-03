@@ -34,6 +34,16 @@ describe("isSafeHref", () => {
     expect(isSafeHref("")).toBe(false);
   });
 
+  it("rejects a URL the model broke mid-generation", () => {
+    // This exact shape came back from a live answer: a newline landed inside
+    // the host, producing a link that goes nowhere.
+    expect(isSafeHref("https://github.com/pietroboc\nci/batch-certify")).toBe(
+      false
+    );
+    expect(isSafeHref("https://example.com/a b")).toBe(false);
+    expect(isSafeHref("/demo/batch\ncertify")).toBe(false);
+  });
+
   it("ignores surrounding whitespace before deciding", () => {
     expect(isSafeHref("  https://example.com  ")).toBe(true);
     expect(isSafeHref("  javascript:alert(1)  ")).toBe(false);

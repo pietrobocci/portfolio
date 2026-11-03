@@ -6,6 +6,7 @@ const links = [
   { href: "/", label: "Home" },
   { href: "/cv", label: "CV" },
   { href: "/demo/batch-certify", label: "Live demo" },
+  { href: "/assistant", label: "Assistant" },
 ];
 
 export function SiteHeader() {

@@ -8,13 +8,16 @@
 //  - never show a stack trace. Every failure the endpoint can produce
 //    already has a sentence written for it.
 
+import Link from "next/link";
 import { useState } from "react";
 
 import { renderAnswer } from "./renderAnswer";
+import { sourceLabel } from "./sources";
 
 const SUGGESTIONS = [
   "Is the Batch Certify contract really deployed?",
   "What is on the chain right now?",
+  "What has he been committing lately?",
   "Why anchor the hash instead of the document?",
   "What is his background before web development?",
 ];
@@ -71,9 +74,14 @@ export function AskWidget() {
     <div className="rounded border border-border p-5">
       <p className="text-sm leading-relaxed text-muted">
         An agent that answers questions about my work. It can read the live
-        Batch Certify contract on Sepolia, so anything it says about the
-        deployment is checked, not claimed. It only covers my projects and
-        background — it will decline anything else.
+        Batch Certify contract on Sepolia and my public GitHub activity, so
+        anything it says about the deployment or the repositories is checked,
+        not claimed. It only covers my projects and background — it will
+        decline anything else.{" "}
+        <Link className="text-accent hover:underline" href="/assistant">
+          How it is built
+        </Link>
+        .
       </p>
 
       {exchanges.length === 0 && (
@@ -100,9 +108,9 @@ export function AskWidget() {
               <div className="mt-2 space-y-3 text-sm leading-relaxed text-muted">
                 {renderAnswer(exchange.answer)}
               </div>
-              {exchange.toolsUsed.length > 0 && (
+              {sourceLabel(exchange.toolsUsed) && (
                 <p className="mt-2 text-xs text-muted">
-                  ✓ Checked live on Sepolia ({exchange.toolsUsed.join(", ")})
+                  ✓ {sourceLabel(exchange.toolsUsed)}
                 </p>
               )}
             </li>

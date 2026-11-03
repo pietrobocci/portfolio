@@ -55,6 +55,7 @@ export const privacyContent = {
         "If you ask the assistant a question, the text you type is sent to my server and from there to Google's Gemini API, which generates the answer. Do not type anything personal or confidential into it — there is no reason to, and it leaves my control once it reaches Google.",
         "Google processes it as an independent provider under its own terms (ai.google.dev/terms) and its own privacy policy, outside the European Union. I do not store your questions in any database; they appear only in the ordinary server logs described under Hosting.",
         "To stop one visitor exhausting the service, the server counts recent requests against a coarse key derived from your IP address. That count is held in memory, is not linked to anything else, and disappears when the server instance restarts.",
+        "To answer questions about the live contract or my repositories, my server — not your browser — reads the Sepolia blockchain and GitHub's public API. Those requests come from the server, so your IP address is not part of them. The only thing from your question that can reach the blockchain endpoint is a batch ID or a document hash you explicitly asked to have verified; nothing you type is ever sent to GitHub.",
         "Legal basis: legitimate interest in answering questions about my work to people who choose to ask (GDPR art. 6(1)(f)). Using it is entirely optional — every answer it gives is also written on the pages of this site.",
       ],
     },
