@@ -1,13 +1,27 @@
 @import "tailwindcss";
 
+/* One theme, dark, whatever the visitor's system prefers. The palette is
+   fixed here rather than behind prefers-color-scheme, and color-scheme
+   tells the browser to draw scrollbars and form controls dark too. */
 :root {
-  --background: #fbfbfa;
-  --surface: #ffffff;
-  --foreground: #1a1a19;
-  --muted: #5b5b57;
-  --border: #e2e1dd;
-  --accent: #1f5f8b;
-  --accent-soft: #eaf1f6;
+  color-scheme: dark;
+  --background: #121212;
+  --surface: #1a1a1a;
+  --foreground: #ececea;
+  --muted: #a3a29d;
+  --border: #2e2e2c;
+  --accent: #7cb7dd;
+  --accent-soft: #17252e;
+}
+
+/* Tailwind's dark: variant follows the system setting by default, which
+   would leave status colours tuned for a light page on a dark one. Tie it
+   to the screen instead: always on when browsing, off when printing, where
+   the print stylesheet below turns the page white. */
+@custom-variant dark {
+  @media screen {
+    @slot;
+  }
 }
 
 @theme inline {
@@ -20,18 +34,6 @@
   --color-accent-soft: var(--accent-soft);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #121212;
-    --surface: #1a1a1a;
-    --foreground: #ececea;
-    --muted: #a3a29d;
-    --border: #2e2e2c;
-    --accent: #7cb7dd;
-    --accent-soft: #17252e;
-  }
 }
 
 body {
@@ -89,6 +91,7 @@ body {
   }
 
   :root {
+    color-scheme: light;
     --background: #ffffff;
     --surface: #ffffff;
     --foreground: #000000;
